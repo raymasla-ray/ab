@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>幾A幾B - 玩家挑戰</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 canvas-confetti 來製作勝利彩帶特效 -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body id="main-body" class="bg-gray-900 text-white font-sans h-screen flex">
+
+    <!-- 登入畫面 -->
+    <div id="login-screen" class="w-full h-full flex flex-col items-center justify-center bg-gray-900 absolute z-50">
+        <h1 class="text-5xl font-bold mb-8 text-blue-400 tracking-widest">幾A幾B 挑戰賽</h1>
+        <div class="bg-gray-800 p-8 rounded-xl shadow-2xl flex flex-col items-center border border-gray-700">
+            <input type="text" id="nickname" placeholder="請輸入暱稱..." class="mb-6 px-4 py-3 bg-gray-700 border-2 border-gray-600 rounded-lg text-2xl text-center text-white focus:outline-none focus:border-blue-500 w-72 placeholder-gray-400">
+            <button id="start-btn" class="px-6 py-3 w-72 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-bold rounded-lg text-xl transition-colors shadow-lg transform active:scale-95">
+                開始遊戲
+            </button>
+        </div>
+    </div>
+
+    <!-- 遊戲畫面 -->
+    <div id="game-screen" class="hidden w-full h-full flex flex-col md:flex-row">
+        <!-- 側邊欄：規則與狀態 -->
+        <div class="w-full md:w-1/4 bg-gray-800 text-white p-8 shadow-lg border-r border-gray-700 flex flex-col justify-between">
+            <div>
+                <h2 class="text-3xl font-bold mb-10">玩家：<span id="display-name" class="text-yellow-300 ml-2"></span></h2>
+                
+                <div class="mb-10 space-y-4">
+                    <h3 class="text-2xl font-bold text-blue-300 mb-4">規則說明</h3>
+                    <p class="text-lg"><span class="text-green-400 font-bold text-2xl mr-2">A</span>數字正確，<span class="text-green-400">位置正確</span></p>
+                    <p class="text-lg"><span class="text-yellow-400 font-bold text-2xl mr-2">B</span>數字正確，<span class="text-yellow-400">位置不對</span></p>
+                </div>
+                
+                <div id="game-status" class="text-xl text-blue-200 font-bold mt-4 tracking-wide leading-relaxed">等待主持人出題中...</div>
+            </div>
+        </div>
+
+        <!-- 主畫面：輸入與歷史紀錄 -->
+        <div class="w-full md:w-3/4 p-6 flex flex-col relative">
+            <!-- 歷史紀錄 -->
+            <div id="history" class="flex-1 overflow-y-auto mb-4 bg-gray-800 rounded-xl shadow-inner p-4 space-y-3 border border-gray-700">
+                <div class="text-gray-500 text-center text-xl mt-10">開始輸入數字來猜測！</div>
+            </div>
+
+            <!-- 輸入顯示區 -->
+            <div class="bg-gray-800 p-4 rounded-xl shadow-lg mb-6 border border-gray-700 flex items-center justify-center text-5xl font-mono tracking-widest h-24 text-blue-400" id="current-input">
+                <!-- 數字顯示在此 -->
+            </div>
+
+            <!-- 精緻數字鍵盤 (深色版) -->
+            <div class="grid grid-cols-3 gap-4 max-w-md mx-auto w-full">
+                <button class="keypad-btn bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white text-3xl font-bold py-4 rounded-xl shadow-lg transition transform active:scale-95">1</button>
+                <button class="keypad-btn bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white text-3xl font-bold py-4 rounded-xl shadow-lg transition transform active:scale-95">2</button>
+                <button class="keypad-btn bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white text-3xl font-bold py-4 rounded-xl shadow-lg transition transform active:scale-95">3</button>
+                <button class="keypad-btn bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white text-3xl font-bold py-4 rounded-xl shadow-lg transition transform active:scale-95">4</button>
+                <button class="keypad-btn bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white text-3xl font-bold py-4 rounded-xl shadow-lg transition transform active:scale-95">5</button>
+                <button class="keypad-btn bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white text-3xl font-bold py-4 rounded-xl shadow-lg transition transform active:scale-95">6</button>
+                <button class="keypad-btn bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white text-3xl font-bold py-4 rounded-xl shadow-lg transition transform active:scale-95">7</button>
+                <button class="keypad-btn bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white text-3xl font-bold py-4 rounded-xl shadow-lg transition transform active:scale-95">8</button>
+                <button class="keypad-btn bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white text-3xl font-bold py-4 rounded-xl shadow-lg transition transform active:scale-95">9</button>
+                <button id="btn-del" class="bg-red-900/50 hover:bg-red-800 active:bg-red-700 text-red-400 text-2xl font-bold py-4 rounded-xl shadow-lg transition border border-red-900/50 transform active:scale-95">刪除</button>
+                <button class="keypad-btn bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white text-3xl font-bold py-4 rounded-xl shadow-lg transition transform active:scale-95">0</button>
+                <button id="btn-submit" class="bg-green-600 hover:bg-green-500 active:bg-green-700 text-white text-2xl font-bold py-4 rounded-xl shadow-lg transition transform active:scale-95">送出</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getDatabase, ref, onValue, push, get, set, onDisconnect } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7PZLTTNf17cfp9gCHudWiWX8SYPSCdDI",
+            authDomain: "onlineeasyraygame.firebaseapp.com",
+            databaseURL: "https://onlineeasyraygame-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "onlineeasyraygame",
+            storageBucket: "onlineeasyraygame.firebasestorage.app",
+            messagingSenderId: "622138442346",
+            appId: "1:622138442346:web:02745ec52f0e83ad428013",
+            measurementId: "G-PZB26XW21J"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // UI 元素
+        const loginScreen = document.getElementById('login-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const nicknameInput = document.getElementById('nickname');
+        const startBtn = document.getElementById('start-btn');
+        const displayName = document.getElementById('display-name');
+        const currentInputEl = document.getElementById('current-input');
+        const historyEl = document.getElementById('history');
+        const gameStatus = document.getElementById('game-status');
+        const submitBtn = document.getElementById('btn-submit');
+        const delBtn = document.getElementById('btn-del');
+        const mainBody = document.getElementById('main-body');
+
+        let myNickname = "";
+        let currentInput = "";
+        let targetNumber = "";
+        let targetLength = 0;
+        let isPlaying = false;
+        let hasWon = false;
+        let isCooldown = false; // 送出冷卻狀態
+        let guessCount = 0;     // 默默記錄玩家猜測次數
+
+        // ==========================
+        // 1. 登入與暱稱重複驗證邏輯
+        // ==========================
+        startBtn.addEventListener('click', async () => {
+            const inputName = nicknameInput.value.trim();
+            if (!inputName) {
+                alert("請輸入暱稱！");
+                return;
+            }
+
+            startBtn.disabled = true;
+            startBtn.innerText = "檢查暱稱中...";
+
+            const playerRef = ref(db, `activePlayers/${inputName}`);
+            
+            try {
+                const snapshot = await get(playerRef);
+                if (snapshot.exists()) {
+                    alert("這個暱稱已經有人使用了，請換一個！");
+                    startBtn.disabled = false;
+                    startBtn.innerText = "開始遊戲";
+                } else {
+                    await set(playerRef, { joinedAt: new Date().toISOString() });
+                    onDisconnect(playerRef).remove();
+
+                    myNickname = inputName;
+                    displayName.innerText = myNickname;
+                    loginScreen.classList.add('hidden');
+                    gameScreen.classList.remove('hidden');
+                    listenToGameState();
+                }
+            } catch (error) {
+                console.error("Firebase 連線錯誤：", error);
+                alert("檢查暱稱時發生錯誤，請檢查網路連線。");
+                startBtn.disabled = false;
+                startBtn.innerText = "開始遊戲";
+            }
+        });
+
+        // ==========================
+        // 2. 監聽 Firebase 遊戲狀態
+        // ==========================
+        function listenToGameState() {
+            const gameStateRef = ref(db, 'gameState');
+            onValue(gameStateRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data && data.status === 'playing') {
+                    targetNumber = data.targetNumber;
+                    targetLength = data.length;
+                    isPlaying = true;
+                    hasWon = false;
+                    isCooldown = false;
+                    guessCount = 0; // 新回合重置猜測次數
+                    currentInput = "";
+                    updateInputDisplay();
+                    historyEl.innerHTML = ""; 
+                    gameStatus.innerHTML = `目前題目：<br><span class="text-yellow-400 text-3xl">${targetLength}</span> 位數字`;
+                    
+                    // 重置按鈕狀態
+                    submitBtn.classList.remove('bg-gray-600', 'cursor-not-allowed');
+                    submitBtn.classList.add('bg-green-600', 'hover:bg-green-500', 'active:bg-green-700');
+                    submitBtn.innerText = "送出";
+                } else {
+                    isPlaying = false;
+                    gameStatus.innerText = "等待主持人出題中...";
+                    currentInputEl.innerText = "";
+                }
+            });
+        }
+
+        // ==========================
+        // 3. 數字鍵盤與輸入邏輯
+        // ==========================
+        document.querySelectorAll('.keypad-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (!isPlaying || hasWon) return; 
+                if (currentInput.length < targetLength) {
+                    currentInput += btn.innerText;
+                    updateInputDisplay();
+                }
+            });
+        });
+
+        delBtn.addEventListener('click', () => {
+            if (!isPlaying || hasWon) return;
+            currentInput = currentInput.slice(0, -1);
+            updateInputDisplay();
+        });
+
+        submitBtn.addEventListener('click', () => {
+            // 送出按鈕在冷卻中會被鎖死
+            if (!isPlaying || hasWon || isCooldown) return;
+            if (currentInput.length !== targetLength) {
+                alert(`請輸入完整的 ${targetLength} 位數字！`);
+                return;
+            }
+            
+            processGuess(currentInput);
+            guessCount++; // 每次送出增加一次紀錄
+            
+            if (!hasWon) {
+                // 當猜測次數大於等於(長度 x 2)時，才開始觸發冷卻
+                if (guessCount >= targetLength * 2) {
+                    startCooldown();
+                }
+            }
+            
+            currentInput = "";
+            updateInputDisplay();
+        });
+
+        function updateInputDisplay() {
+            let display = currentInput.padEnd(targetLength, '_');
+            currentInputEl.innerText = display.split('').join(' ');
+        }
+
+        // ==========================
+        // 4. 猜測後的 10 秒冷卻邏輯
+        // ==========================
+        function startCooldown() {
+            isCooldown = true;
+            let cdTimeLeft = 10;
+            
+            submitBtn.classList.remove('bg-green-600', 'hover:bg-green-500', 'active:bg-green-700');
+            submitBtn.classList.add('bg-gray-600', 'cursor-not-allowed');
+            submitBtn.innerText = `冷卻中 (${cdTimeLeft})`;
+
+            const cdTimer = setInterval(() => {
+                cdTimeLeft--;
+                submitBtn.innerText = `冷卻中 (${cdTimeLeft})`;
+                
+                if (cdTimeLeft <= 0 || !isPlaying) {
+                    clearInterval(cdTimer);
+                    isCooldown = false;
+                    submitBtn.classList.remove('bg-gray-600', 'cursor-not-allowed');
+                    submitBtn.classList.add('bg-green-600', 'hover:bg-green-500', 'active:bg-green-700');
+                    submitBtn.innerText = "送出";
+                }
+            }, 1000);
+        }
+
+        // ==========================
+        // 5. 幾A幾B 計算與勝利邏輯
+        // ==========================
+        function processGuess(guess) {
+            let A = 0;
+            let B = 0;
+            let guessArr = guess.split('');
+            let targetArr = targetNumber.split('');
+
+            for (let i = 0; i < targetLength; i++) {
+                if (guessArr[i] === targetArr[i]) {
+                    A++;
+                    guessArr[i] = null;
+                    targetArr[i] = null;
+                }
+            }
+
+            for (let i = 0; i < targetLength; i++) {
+                if (guessArr[i] !== null) {
+                    let matchIndex = targetArr.indexOf(guessArr[i]);
+                    if (matchIndex !== -1) {
+                        B++;
+                        targetArr[matchIndex] = null;
+                    }
+                }
+            }
+
+            const resultHtml = `
+                <div class="flex justify-between items-center p-4 bg-gray-700 border-l-4 border-blue-500 rounded-lg shadow-md animate-fade-in">
+                    <span class="text-3xl font-mono tracking-widest text-white">${guess}</span>
+                    <span class="text-2xl font-bold"><span class="text-green-400">${A}A</span> <span class="text-yellow-400">${B}B</span></span>
+                </div>
+            `;
+            if (historyEl.innerHTML.includes('開始輸入數字來猜測')) historyEl.innerHTML = '';
+            historyEl.insertAdjacentHTML('afterbegin', resultHtml);
+
+            // 勝利判斷
+            if (A === targetLength) {
+                hasWon = true;
+                gameStatus.innerHTML = "<br><span class=\"text-green-400 font-bold text-3xl\">🎉 恭喜你猜中了！</span>";
+                
+                // 觸發震動動畫
+                mainBody.classList.add('shake-screen');
+                setTimeout(() => mainBody.classList.remove('shake-screen'), 500); 
+                
+                // 觸發彩帶特效
+                confetti({
+                    particleCount: 150,
+                    spread: 100,
+                    origin: { y: 0.6 },
+                    zIndex: 9999
+                });
+                
+                push(ref(db, 'winners'), {
+                    name: myNickname,
+                    time: new Date().toISOString()
+                });
+            }
+        }
+    </script>
+    <style>
+        /* 歷史紀錄進入動畫 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        /* 畫面震動動畫 */
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+        .shake-screen {
+            animation: shake 0.5s;
+            animation-iteration-count: 1;
+        }
+    </style>
+</body>
+</html>
