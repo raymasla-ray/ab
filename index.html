@@ -2,18 +2,18 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>幾A幾B - 玩家挑戰</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>幾A幾B - 玩家</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
-<body id="main-body" class="bg-gray-900 text-white font-sans h-screen flex overflow-hidden">
+<body id="main-body" class="bg-gray-900 text-white font-sans h-screen flex overflow-hidden touch-manipulation">
 
     <div id="login-screen" class="w-full h-full flex flex-col items-center justify-center bg-gray-900 absolute z-50">
         <h1 class="text-4xl md:text-5xl font-bold mb-8 text-blue-400 tracking-widest text-center">幾A幾B 挑戰賽</h1>
         <div class="bg-gray-800 p-6 md:p-8 rounded-xl shadow-2xl flex flex-col items-center border border-gray-700 w-11/12 max-w-sm">
             <input type="text" id="nickname" placeholder="請輸入暱稱..." class="mb-6 px-4 py-3 bg-gray-700 border-2 border-gray-600 rounded-lg text-xl md:text-2xl text-center text-white focus:outline-none focus:border-blue-500 w-full placeholder-gray-400">
-            <button id="start-btn" class="px-6 py-3 w-full bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-bold rounded-lg text-xl transition-colors shadow-lg transform active:scale-95">
+            <button id="start-btn" class="px-6 py-3 w-full bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-bold rounded-lg text-xl transition-colors shadow-lg transform active:scale-95 touch-manipulation">
                 開始遊戲
             </button>
         </div>
@@ -43,18 +43,18 @@
                 </div>
 
             <div class="grid grid-cols-3 gap-2 md:gap-4 w-full max-w-md mx-auto pb-2 md:pb-0">
-                <button class="keypad-btn bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white text-xl md:text-3xl font-bold py-3 md:py-4 rounded-xl shadow-lg transition transform active:scale-95">1</button>
-                <button class="keypad-btn bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white text-xl md:text-3xl font-bold py-3 md:py-4 rounded-xl shadow-lg transition transform active:scale-95">2</button>
-                <button class="keypad-btn bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white text-xl md:text-3xl font-bold py-3 md:py-4 rounded-xl shadow-lg transition transform active:scale-95">3</button>
-                <button class="keypad-btn bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white text-xl md:text-3xl font-bold py-3 md:py-4 rounded-xl shadow-lg transition transform active:scale-95">4</button>
-                <button class="keypad-btn bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white text-xl md:text-3xl font-bold py-3 md:py-4 rounded-xl shadow-lg transition transform active:scale-95">5</button>
-                <button class="keypad-btn bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white text-xl md:text-3xl font-bold py-3 md:py-4 rounded-xl shadow-lg transition transform active:scale-95">6</button>
-                <button class="keypad-btn bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white text-xl md:text-3xl font-bold py-3 md:py-4 rounded-xl shadow-lg transition transform active:scale-95">7</button>
-                <button class="keypad-btn bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white text-xl md:text-3xl font-bold py-3 md:py-4 rounded-xl shadow-lg transition transform active:scale-95">8</button>
-                <button class="keypad-btn bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white text-xl md:text-3xl font-bold py-3 md:py-4 rounded-xl shadow-lg transition transform active:scale-95">9</button>
-                <button id="btn-del" class="bg-red-900/50 hover:bg-red-800 active:bg-red-700 text-red-400 text-lg md:text-2xl font-bold py-3 md:py-4 rounded-xl shadow-lg transition border border-red-900/50 transform active:scale-95">刪除</button>
-                <button class="keypad-btn bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white text-xl md:text-3xl font-bold py-3 md:py-4 rounded-xl shadow-lg transition transform active:scale-95">0</button>
-                <button id="btn-submit" class="bg-green-600 hover:bg-green-500 active:bg-green-700 text-white text-lg md:text-2xl font-bold py-3 md:py-4 rounded-xl shadow-lg transition transform active:scale-95">送出</button>
+                <button class="keypad-btn bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white text-xl md:text-3xl font-bold py-3 md:py-4 rounded-xl shadow-lg transition transform active:scale-95 touch-manipulation">1</button>
+                <button class="keypad-btn bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white text-xl md:text-3xl font-bold py-3 md:py-4 rounded-xl shadow-lg transition transform active:scale-95 touch-manipulation">2</button>
+                <button class="keypad-btn bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white text-xl md:text-3xl font-bold py-3 md:py-4 rounded-xl shadow-lg transition transform active:scale-95 touch-manipulation">3</button>
+                <button class="keypad-btn bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white text-xl md:text-3xl font-bold py-3 md:py-4 rounded-xl shadow-lg transition transform active:scale-95 touch-manipulation">4</button>
+                <button class="keypad-btn bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white text-xl md:text-3xl font-bold py-3 md:py-4 rounded-xl shadow-lg transition transform active:scale-95 touch-manipulation">5</button>
+                <button class="keypad-btn bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white text-xl md:text-3xl font-bold py-3 md:py-4 rounded-xl shadow-lg transition transform active:scale-95 touch-manipulation">6</button>
+                <button class="keypad-btn bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white text-xl md:text-3xl font-bold py-3 md:py-4 rounded-xl shadow-lg transition transform active:scale-95 touch-manipulation">7</button>
+                <button class="keypad-btn bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white text-xl md:text-3xl font-bold py-3 md:py-4 rounded-xl shadow-lg transition transform active:scale-95 touch-manipulation">8</button>
+                <button class="keypad-btn bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white text-xl md:text-3xl font-bold py-3 md:py-4 rounded-xl shadow-lg transition transform active:scale-95 touch-manipulation">9</button>
+                <button id="btn-del" class="bg-red-900/50 hover:bg-red-800 active:bg-red-700 text-red-400 text-lg md:text-2xl font-bold py-3 md:py-4 rounded-xl shadow-lg transition border border-red-900/50 transform active:scale-95 touch-manipulation">刪除</button>
+                <button class="keypad-btn bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white text-xl md:text-3xl font-bold py-3 md:py-4 rounded-xl shadow-lg transition transform active:scale-95 touch-manipulation">0</button>
+                <button id="btn-submit" class="bg-green-600 hover:bg-green-500 active:bg-green-700 text-white text-lg md:text-2xl font-bold py-3 md:py-4 rounded-xl shadow-lg transition transform active:scale-95 touch-manipulation">送出</button>
             </div>
         </div>
     </div>
@@ -96,12 +96,9 @@
         let targetLength = 0;
         let isPlaying = false;
         let hasWon = false;
-        let isCooldown = false; // 送出冷卻狀態
-        let guessCount = 0;     // 記錄玩家猜測次數
+        let isCooldown = false;
+        let guessCount = 0;
 
-        // ==========================
-        // 1. 登入與暱稱重複驗證邏輯
-        // ==========================
         startBtn.addEventListener('click', async () => {
             const inputName = nicknameInput.value.trim();
             if (!inputName) {
@@ -138,9 +135,6 @@
             }
         });
 
-        // ==========================
-        // 2. 監聽 Firebase 遊戲狀態
-        // ==========================
         function listenToGameState() {
             const gameStateRef = ref(db, 'gameState');
             onValue(gameStateRef, (snapshot) => {
@@ -151,13 +145,12 @@
                     isPlaying = true;
                     hasWon = false;
                     isCooldown = false;
-                    guessCount = 0; // 新回合重置猜測次數
+                    guessCount = 0;
                     currentInput = "";
                     updateInputDisplay();
                     historyEl.innerHTML = ""; 
                     gameStatus.innerHTML = `題目：<br><span class="text-yellow-400 text-xl md:text-3xl">${targetLength}</span> 位數`;
                     
-                    // 重置按鈕狀態
                     submitBtn.classList.remove('bg-gray-600', 'cursor-not-allowed');
                     submitBtn.classList.add('bg-green-600', 'hover:bg-green-500', 'active:bg-green-700');
                     submitBtn.innerText = "送出";
@@ -169,9 +162,6 @@
             });
         }
 
-        // ==========================
-        // 3. 數字鍵盤與輸入邏輯
-        // ==========================
         document.querySelectorAll('.keypad-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 if (!isPlaying || hasWon) return; 
@@ -189,19 +179,16 @@
         });
 
         submitBtn.addEventListener('click', () => {
-            // 送出按鈕在冷卻中會被鎖死
             if (!isPlaying || hasWon || isCooldown) return;
             if (currentInput.length !== targetLength) {
                 alert(`請輸入完整的 ${targetLength} 位數字！`);
                 return;
             }
             
-            // 先增加嘗試次數再驗證
             guessCount++; 
             processGuess(currentInput);
             
             if (!hasWon) {
-                // 當猜測次數大於等於(長度 x 2)時，才開始觸發冷卻
                 if (guessCount >= targetLength * 2) {
                     startCooldown();
                 }
@@ -216,9 +203,6 @@
             currentInputEl.innerText = display.split('').join(' ');
         }
 
-        // ==========================
-        // 4. 猜測後的 10 秒冷卻邏輯
-        // ==========================
         function startCooldown() {
             isCooldown = true;
             let cdTimeLeft = 10;
@@ -241,9 +225,6 @@
             }, 1000);
         }
 
-        // ==========================
-        // 5. 幾A幾B 計算與勝利邏輯
-        // ==========================
         function processGuess(guess) {
             let A = 0;
             let B = 0;
@@ -277,16 +258,13 @@
             if (historyEl.innerHTML.includes('開始輸入數字來猜測')) historyEl.innerHTML = '';
             historyEl.insertAdjacentHTML('afterbegin', resultHtml);
 
-            // 勝利判斷
             if (A === targetLength) {
                 hasWon = true;
                 gameStatus.innerHTML = "<br><span class=\"text-green-400 font-bold text-lg md:text-2xl\">🎉 猜中了！</span>";
                 
-                // 觸發震動動畫
                 mainBody.classList.add('shake-screen');
                 setTimeout(() => mainBody.classList.remove('shake-screen'), 500); 
                 
-                // 觸發彩帶特效
                 confetti({
                     particleCount: 150,
                     spread: 100,
@@ -294,7 +272,6 @@
                     zIndex: 9999
                 });
                 
-                // 上傳過關紀錄並附帶總嘗試次數(guessCount)
                 push(ref(db, 'winners'), {
                     name: myNickname,
                     time: new Date().toISOString(),
@@ -304,7 +281,11 @@
         }
     </script>
     <style>
-        /* 歷史紀錄進入動畫 */
+        /* 防止部分 Safari 瀏覽器的預設行為溢出 */
+        button {
+            -webkit-tap-highlight-color: transparent;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-5px); }
             to { opacity: 1; transform: translateY(0); }
@@ -313,7 +294,6 @@
             animation: fadeIn 0.3s ease-out forwards;
         }
 
-        /* 畫面震動動畫 */
         @keyframes shake {
             0% { transform: translate(1px, 1px) rotate(0deg); }
             10% { transform: translate(-1px, -2px) rotate(-1deg); }
