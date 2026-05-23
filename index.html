@@ -61,7 +61,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getDatabase, ref, onValue, push, get, set, onDisconnect } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+        import { getDatabase, ref, onValue, get, set, onDisconnect } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyC7PZLTTNf17cfp9gCHudWiWX8SYPSCdDI",
@@ -99,6 +99,15 @@
         let isCooldown = false;
         let guessCount = 0;
 
+        // 檢查本地是否已有綁定的暱稱
+        const savedNickname = localStorage.getItem('ab_game_nickname');
+        if (savedNickname) {
+            nicknameInput.value = savedNickname;
+            nicknameInput.readOnly = true;
+            nicknameInput.classList.add('opacity-75', 'cursor-not-allowed');
+            startBtn.innerText = "進入遊戲";
+        }
+
         startBtn.addEventListener('click', async () => {
             const inputName = nicknameInput.value.trim();
             if (!inputName) {
@@ -107,13 +116,14 @@
             }
 
             startBtn.disabled = true;
-            startBtn.innerText = "檢查暱稱中...";
+            startBtn.innerText = "檢查連線中...";
 
             const playerRef = ref(db, `activePlayers/${inputName}`);
             
             try {
                 const snapshot = await get(playerRef);
-                if (snapshot.exists()) {
+                // 只有在有人使用，且不是本機已經綁定的暱稱時才阻擋
+                if (snapshot.exists() && inputName !== savedNickname) {
                     alert("這個暱稱已經有人使用了，請換一個！");
                     startBtn.disabled = false;
                     startBtn.innerText = "開始遊戲";
@@ -122,6 +132,11 @@
                     onDisconnect(playerRef).remove();
 
                     myNickname = inputName;
+                    // 將暱稱綁定在此設備
+                    if (!savedNickname) {
+                        localStorage.setItem('ab_game_nickname', myNickname);
+                    }
+                    
                     displayName.innerText = myNickname;
                     loginScreen.classList.add('hidden');
                     gameScreen.classList.remove('hidden');
@@ -143,21 +158,41 @@
                     targetNumber = data.targetNumber;
                     targetLength = data.length;
                     isPlaying = true;
-                    hasWon = false;
                     isCooldown = false;
-                    guessCount = 0;
                     currentInput = "";
+                    
+                    // 防作弊：讀取本地狀態，確認是否為新的一局
+                    let savedState = JSON.parse(localStorage.getItem('ab_game_state') || '{}');
+                    if (savedState.target !== targetNumber) {
+                        // 新題目，重置次數與過關狀態
+                        guessCount = 0;
+                        hasWon = false;
+                        localStorage.setItem('ab_game_state', JSON.stringify({ target: targetNumber, guesses: 0, won: false }));
+                        historyEl.innerHTML = '<div class="text-gray-500 text-center text-sm md:text-xl mt-4 md:mt-10">開始輸入數字來猜測！</div>';
+                    } else {
+                        // 舊題目，接續之前的次數
+                        guessCount = savedState.guesses || 0;
+                        hasWon = savedState.won || false;
+                    }
+
                     updateInputDisplay();
-                    historyEl.innerHTML = ""; 
                     gameStatus.innerHTML = `題目：<br><span class="text-yellow-400 text-xl md:text-3xl">${targetLength}</span> 位數`;
                     
-                    submitBtn.classList.remove('bg-gray-600', 'cursor-not-allowed');
-                    submitBtn.classList.add('bg-green-600', 'hover:bg-green-500', 'active:bg-green-700');
-                    submitBtn.innerText = "送出";
+                    if (hasWon) {
+                        gameStatus.innerHTML += "<br><span class=\"text-green-400 font-bold text-sm md:text-xl mt-2 block\">🎉 您已過關！</span>";
+                        submitBtn.classList.add('bg-gray-600', 'cursor-not-allowed');
+                        submitBtn.classList.remove('bg-green-600', 'hover:bg-green-500', 'active:bg-green-700');
+                        submitBtn.innerText = "已過關";
+                    } else {
+                        submitBtn.classList.remove('bg-gray-600', 'cursor-not-allowed');
+                        submitBtn.classList.add('bg-green-600', 'hover:bg-green-500', 'active:bg-green-700');
+                        submitBtn.innerText = "送出";
+                    }
                 } else {
                     isPlaying = false;
                     gameStatus.innerText = "等待出題...";
                     currentInputEl.innerText = "";
+                    historyEl.innerHTML = "";
                 }
             });
         }
@@ -186,6 +221,12 @@
             }
             
             guessCount++; 
+            
+            // 更新本地儲存的猜測次數
+            let savedState = JSON.parse(localStorage.getItem('ab_game_state') || '{}');
+            savedState.guesses = guessCount;
+            localStorage.setItem('ab_game_state', JSON.stringify(savedState));
+
             processGuess(currentInput);
             
             if (!hasWon) {
@@ -218,9 +259,11 @@
                 if (cdTimeLeft <= 0 || !isPlaying) {
                     clearInterval(cdTimer);
                     isCooldown = false;
-                    submitBtn.classList.remove('bg-gray-600', 'cursor-not-allowed');
-                    submitBtn.classList.add('bg-green-600', 'hover:bg-green-500', 'active:bg-green-700');
-                    submitBtn.innerText = "送出";
+                    if (!hasWon) {
+                        submitBtn.classList.remove('bg-gray-600', 'cursor-not-allowed');
+                        submitBtn.classList.add('bg-green-600', 'hover:bg-green-500', 'active:bg-green-700');
+                        submitBtn.innerText = "送出";
+                    }
                 }
             }, 1000);
         }
@@ -260,8 +303,13 @@
 
             if (A === targetLength) {
                 hasWon = true;
-                gameStatus.innerHTML = "<br><span class=\"text-green-400 font-bold text-lg md:text-2xl\">🎉 猜中了！</span>";
+                gameStatus.innerHTML += "<br><span class=\"text-green-400 font-bold text-lg md:text-2xl mt-2 block\">🎉 猜中了！</span>";
                 
+                // 記錄過關狀態到本地
+                let savedState = JSON.parse(localStorage.getItem('ab_game_state') || '{}');
+                savedState.won = true;
+                localStorage.setItem('ab_game_state', JSON.stringify(savedState));
+
                 mainBody.classList.add('shake-screen');
                 setTimeout(() => mainBody.classList.remove('shake-screen'), 500); 
                 
@@ -272,9 +320,9 @@
                     zIndex: 9999
                 });
                 
-                push(ref(db, 'winners'), {
+                // 寫入排行榜，以暱稱作為路徑防止同個人刷多筆
+                set(ref(db, `winners/${myNickname}`), {
                     name: myNickname,
-                    time: new Date().toISOString(),
                     guesses: guessCount
                 });
             }
